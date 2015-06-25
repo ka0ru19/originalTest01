@@ -12,9 +12,21 @@ import CoreData
 class ListTableViewController: UITableViewController {
     
     var mylist:Array<AnyObject> = []
+//    
+//    @IBOutlet weak var nameLabel: UILabel!        //tag 1
+//    @IBOutlet weak var imageLabel: UIImageView!   //tag 2
+//    @IBOutlet weak var dateLabel: UILabel!        //tag 3
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let appDel: AppDelegate = UIApplication.sharedApplication().delegate as AppDelegate
+        let context: NSManagedObjectContext = appDel.managedObjectContext!
+        let freq = NSFetchRequest(entityName:"List")
+        
+        mylist = context.executeFetchRequest(freq, error: nil)!
+        tableView.reloadData()
+
         // Do any additional setup after loading the view, typically from a nib.
     }
     
@@ -67,12 +79,29 @@ class ListTableViewController: UITableViewController {
             var data : NSManagedObject = mylist[ip.row] as NSManagedObject
             
             var nameText = data.valueForKeyPath("name") as String
-            var picText = data.valueForKeyPath("pic") as? UIImage
+            var picView = data.valueForKeyPath("pic") as? UIImage
             var detailText = data.valueForKeyPath("detail") as String
             
-            cell.textLabel?.text = nameText
-            cell.detailTextLabel?.text = "\(nameText)さんの\(detailText)"
+            var cellNameText = tableView.viewWithTag(1) as UILabel!
+            cellNameText?.text = nameText
+            
+            var cellImg = tableView.viewWithTag(2) as UIImageView!
+            cellImg?.image = picView
+//            
+//            cell.textLabel?.text = nameText
+//            cell.detailTextLabel?.text = "\(nameText)さんの\(detailText)"
         }
+        
+//        var img = UIImage(named:"\(imgArray[indexPath.row])")
+//        // Tag番号 1 で UIImageView インスタンスの生成
+//        var imageView = tableView.viewWithTag(1) as UIImageView
+//        imageView.image = img
+//        
+//        // Tag番号 2 で UILabel インスタンスの生成
+//        // let label1 = tableView.viewWithTag(2) as UILabel
+//        // label1.text = "No.\(indexPath.row + 1)"
+//        var label1 = tableView.viewWithTag(2) as UILabel
+//        label1.text = "No.\(label1Array[indexPath.row])"
         
         return cell
     }

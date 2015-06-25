@@ -26,12 +26,12 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //existingItemが空だったら新規画面、
+        
         if (existingItem != nil) {
             textFieldName.text = name
             myImage?.image = pic
             textViewDetail.text = detail
-        } else {
+        } else { //existingItemが空だったら新規画面、
             self.pickImageFromCamera()
             self.pickImageFromLibrary()
         }
@@ -44,22 +44,25 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         let contxt: NSManagedObjectContext = appDel.managedObjectContext!
         let en = NSEntityDescription.entityForName("List", inManagedObjectContext: contxt)
         
-        if (existingItem != nil) {
+        if (existingItem != nil) { //もしexistingItemがあったら
             
             existingItem.setValue(textFieldName.text as String, forKey: "name")
             existingItem.setValue(myImage.image , forKey: "pic")
             existingItem.setValue(textViewDetail.text as String, forKey: "detail")
             
-        } else {
+        } else {   // なかったら
             
             var newItem = Model(entity: en!, insertIntoManagedObjectContext: contxt)
             newItem.name = textFieldName.text
+            //新規画面から写真選択をキャンセルしてSaveしようとするとしたの行でエラー
             newItem.pic = myImage.image!
             newItem.detail = textViewDetail.text
             
             println(newItem)
         }
         contxt.save(nil)
+        
+        self.navigationController?.popToRootViewControllerAnimated(true)
         
     }
     @IBAction func cancelTapped(sender: AnyObject) {
