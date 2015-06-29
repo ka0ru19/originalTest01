@@ -9,11 +9,13 @@
 import UIKit
 import CoreData
 
-class DetailViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIToolbarDelegate {
-    @IBOutlet weak var textFieldName: UITextField!
-    @IBOutlet weak var myImage: UIImageView! = nil
-    @IBOutlet weak var textViewDetail: UITextView!
+class DetailViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIToolbarDelegate, UITextFieldDelegate {
+    
     @IBOutlet weak var textFieldTime: UITextField!
+    private var textFieldName: UITextField!
+    private var myImage: UIImageView!
+    private var textViewDetail: UITextView!
+    
     var toolBar:UIToolbar!
     var myDatePicker: UIDatePicker!
     
@@ -23,9 +25,105 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
     var detail: String! = ""
     var existingItem: NSManagedObject!
     
+    let interval: CGFloat = 8 //アイテム配置のための間隔の設定
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        let iphoneWidth:CGFloat  = self.view.bounds.width
+        let iphoneHeight:CGFloat = self.view.frame.size.height
+        
+        var y: CGFloat = 64 //画面上端からツールバーの下端までの高さ＝64
+        
+        // Labelを作成.
+        y = y + interval
+        textFieldName = UITextField(frame: CGRectMake(interval, y, iphoneWidth*3/5, 30))
+        y = y + 30 //yに下端の値を代入しておく
+        
+        // 枠を丸くする.
+        textFieldName.layer.masksToBounds = true
+        
+        // コーナーの半径.
+        textFieldName.layer.cornerRadius = 6.0
+        
+        // Labelに文字を代入.
+        textFieldName.text = ""
+        
+        // 未入力時の薄い文字を設定
+        textFieldName.placeholder = "input name here!"
+        
+        // 文字の色を黒にする.
+        textFieldName.textColor = UIColor.blackColor()
+        
+        // 枠線の太さを設定する.
+        textFieldName.layer.borderWidth = 0.8
+
+        // Textを中央寄せにする.
+        textFieldName.textAlignment = NSTextAlignment.Center
+        
+        // ViewにLabelを追加.
+        self.view.addSubview(textFieldName)
+        
+        textFieldName?.delegate = self  //追加
+        
+        // UIImageViewを作成する.ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+        // 表示する写真のサイズ：iPhone の横幅の長さの3/5倍を1辺とする正方形
+        y = y + interval // 高さの算出, 30はLabelの高さ
+        myImage = UIImageView(frame: CGRectMake(interval, y, iphoneWidth*3/5, iphoneWidth*3/5))
+        y = y + iphoneWidth*3/5 //yに下端の値を代入しておく
+        
+        // 表示する画像を設定する.
+        //let myImage = UIImage(named: "logo.png")
+        
+        // 画像をUIImageViewに設定する.
+        myImage.image = nil
+        
+        // 画像の表示する座標を指定する.
+        //myImage.layer.position = CGPoint(x: self.view.bounds.width/2, y: 200.0)
+        
+        // UIImageViewをViewに追加する.
+        self.view.addSubview(myImage)
+        // UIImageView 完了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+        
+        // TextView生成する.ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+        y = y + interval
+        textViewDetail = UITextView(frame: CGRectMake(interval, y, iphoneWidth - 2 * interval, 300)) //300は適当
+        y = y + 300
+        
+        // 表示させるテキストを設定する.
+        textViewDetail.text = ""
+        
+        // 角に丸みをつける.
+        textViewDetail.layer.masksToBounds = true
+        
+        // 丸みのサイズを設定する.
+        textViewDetail.layer.cornerRadius = 12.0
+        
+        // 枠線の太さを設定する.
+        textViewDetail.layer.borderWidth = 0.5
+        
+        // フォントの設定をする.
+        textViewDetail.font = UIFont.systemFontOfSize(CGFloat(13))
+        
+        // フォントの色の設定をする.
+        textViewDetail.textColor = UIColor.blackColor()
+        
+        // 左詰めの設定をする.
+        textViewDetail.textAlignment = NSTextAlignment.Left
+        
+        // リンク、日付などを自動的に検出してリンクに変換する.
+        textViewDetail.dataDetectorTypes = UIDataDetectorTypes.All
+        
+        // 影の濃さを設定する.
+        textViewDetail.layer.shadowOpacity = 0.5
+        
+        // 編集可能か否か
+        textViewDetail.editable = true
+        
+        // TextViewをViewに追加する.
+        self.view.addSubview(textViewDetail)
+        // TextView 完了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 
         // UIDatePickerの設定
         myDatePicker = UIDatePicker()
@@ -35,13 +133,13 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         myDatePicker.locale = NSLocale(localeIdentifier: "ja") //pickerの表示形式を日本に
         
         // UIToolBarの設定
-        toolBar = UIToolbar(frame: CGRectMake(0, self.view.frame.size.height/6, self.view.frame.size.width, 40.0))
-        toolBar.layer.position = CGPoint(x: self.view.frame.size.width/2, y: self.view.frame.size.height-20.0)
+        toolBar = UIToolbar(frame: CGRectMake(0, iphoneHeight/6, iphoneWidth, 40.0))
+        toolBar.layer.position = CGPoint(x: iphoneWidth/2, y: iphoneHeight-20.0)
         toolBar.barStyle = .BlackTranslucent
         toolBar.tintColor = UIColor.whiteColor()
         toolBar.backgroundColor = UIColor.blackColor()
         let toolBarBtn      = UIBarButtonItem(title: "完了", style: .Bordered, target: self, action: "tappedToolBarBtn:")
-        let toolBarBtnToday = UIBarButtonItem(title: "今日", style: .Bordered, target: self, action: "tappedToolBarBtnToday:")
+        let toolBarBtnToday = UIBarButtonItem(title: "現在", style: .Bordered, target: self, action: "tappedToolBarBtnToday:")
         
         toolBarBtn.tag = 1
         toolBar.items = [toolBarBtn, toolBarBtnToday]
@@ -57,6 +155,7 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
             textFieldTime.text = time
             myImage?.image = pic
             textViewDetail.text = detail
+            
         } else { //existingItemが空だったら新規画面、
             println("テスト。else文")
             // TimeLabel入力欄の設定--------------------------------------------------------------------------------
@@ -67,14 +166,26 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
             //textFieldTime.sizeToFit()
             //self.view.addSubview(textFieldTime)
             // TimeLabel入力欄の設定ここまで-----------------------------------------------------------
-            self.pickImageFromCamera()
-            self.pickImageFromLibrary()
+            
+            //写真の取得
+            self.selectImageWayBtn()
+            //self.pickImageFromCamera()
+            //self.pickImageFromLibrary()
         }
         //それ以外は既存の項目を表示
         // Do any additional setup after loading the view, typically from a nib.
         println("テスト。DetailViewControllerのsuper.viewDidLoad()完了")
     }
     
+    // textFieldで改行が押されるとキーボードを収納
+    func textFieldShouldReturn(textField: UITextField!) -> Bool{
+        // キーボードを閉じる
+        textField.resignFirstResponder()
+        
+        return true
+    }
+    
+    // UIDatePickerここから----------------------------------------------------------------------------------------
     // 「完了」を押すと閉じる
     func tappedToolBarBtn(sender: UIBarButtonItem) {
         textFieldTime.resignFirstResponder()
@@ -86,7 +197,6 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         changeLabelDate(NSDate())
     }
 
-    //
     func changedDateEvent(sender:AnyObject?){
         var dateSelecter: UIDatePicker = sender as UIDatePicker
         self.changeLabelDate(myDatePicker.date)
@@ -109,6 +219,31 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         return date_formatter.stringFromDate(date)
     }
     // UIDatePickerここまで--------------------------------------------------------------------------------------------
+    
+    
+    private func selectImageWayBtn() {
+        let alertController = UIAlertController(title: "写真を追加", message: "どこから追加しますか？", preferredStyle: .Alert)
+        let firstAction = UIAlertAction(title: "カメラ", style: .Default) {
+            action in self.pickImageFromCamera()
+        }
+        let secondAction = UIAlertAction(title: "アルバム", style: .Default) {
+            action in self.pickImageFromLibrary()
+        }
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .Cancel) {
+            action in return
+        }
+        
+        alertController.addAction(firstAction)
+        alertController.addAction(secondAction)
+        alertController.addAction(cancelAction)
+        
+        //For ipad And Univarsal Device
+        alertController.popoverPresentationController?.sourceView = view as UIView
+        alertController.popoverPresentationController?.sourceRect = CGRect(x: (self.view.frame.size.width/2), y: self.view.frame.size.height, width: 0, height: 0)
+        alertController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.Up
+        
+        presentViewController(alertController, animated: true, completion: nil)
+    }
 
     
     @IBAction func saveTapped(sender: AnyObject) {
@@ -126,6 +261,22 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
             
         } else {   // なかったら
             println("テスト。else文")
+            if (myImage.image == nil) {
+                let alertController = UIAlertController(title: "写真がありません", message: "「編集」から写真を選択してください", preferredStyle: .Alert)
+                
+                let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+                
+                alertController.addAction(defaultAction)
+                
+                //alertController.popoverPresentationController?.sourceView = view as UIView
+                alertController.popoverPresentationController?.sourceRect = CGRect(x: (self.view.frame.size.width/2), y: self.view.frame.size.height, width: 0, height: 0)
+                alertController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.Up
+                
+                presentViewController(alertController, animated: true, completion: nil)
+                
+                return
+            }
+            
             var newItem = Model(entity: en!, insertIntoManagedObjectContext: contxt)
             newItem.name = textFieldName.text
             newItem.recordTimeString = textFieldTime.text

@@ -27,14 +27,14 @@ class ListTableViewController: UITableViewController {
     override func viewDidAppear(animated: Bool) {        
         let appDel: AppDelegate = UIApplication.sharedApplication().delegate as AppDelegate
         let context: NSManagedObjectContext = appDel.managedObjectContext!
-//        let sort:NSSortDescriptor = NSSortDescriptor(key: "recordTimeString", ascending: false)
+        let sort:NSSortDescriptor = NSSortDescriptor(key: "recordTimeString", ascending: false)
         
 
         let freq: NSFetchRequest = NSFetchRequest(entityName: "List")
         
-//        freq.predicate = nil
-//        freq.sortDescriptors = [sort]
-//        freq.returnsObjectsAsFaults = false
+        freq.predicate = nil
+        freq.sortDescriptors = [sort]
+        freq.returnsObjectsAsFaults = false
         
         mylist = context.executeFetchRequest(freq, error: nil)!
         tableView.reloadData()
