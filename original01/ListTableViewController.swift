@@ -18,26 +18,51 @@ class ListTableViewController: UITableViewController {
 //    @IBOutlet weak var dateLabel: UILabel!        //tag 3
     
     override func viewDidLoad() {
+        // Do any additional setup after loading the view, typically from a nib.
         super.viewDidLoad()
         
-        let appDel: AppDelegate = UIApplication.sharedApplication().delegate as AppDelegate
-        let context: NSManagedObjectContext = appDel.managedObjectContext!
-        let freq = NSFetchRequest(entityName:"List")
-        
-        mylist = context.executeFetchRequest(freq, error: nil)!
-        tableView.reloadData()
-
-        // Do any additional setup after loading the view, typically from a nib.
+        println("テスト。ListTableViewControllerのsuper.viewDidLoad()完了")
     }
     
-    override func viewDidAppear(animated: Bool) {
-        
+    override func viewDidAppear(animated: Bool) {        
         let appDel: AppDelegate = UIApplication.sharedApplication().delegate as AppDelegate
         let context: NSManagedObjectContext = appDel.managedObjectContext!
-        let freq = NSFetchRequest(entityName:"List")
+//        let sort:NSSortDescriptor = NSSortDescriptor(key: "recordTimeString", ascending: false)
+        
+
+        let freq: NSFetchRequest = NSFetchRequest(entityName: "List")
+        
+//        freq.predicate = nil
+//        freq.sortDescriptors = [sort]
+//        freq.returnsObjectsAsFaults = false
         
         mylist = context.executeFetchRequest(freq, error: nil)!
         tableView.reloadData()
+        
+        println("テスト。viewDidAppear完了")
+        
+        
+        // get coredata instances
+        
+//        let appDel:AppDelegate = UIApplication.sharedApplication().delegate as AppDelegate
+//        let context: NSManagedObjectContext? = appDel.managedObjectContext
+//        let sort:NSSortDescriptor = NSSortDescriptor(key: "recordTime", ascending: false)
+//        let predicate:NSPredicate? = NSPredicate(format: "%@ <= recordTime && recordTime <= %@", startDate!, lastDate!)
+//        
+//        let request = NSFetchRequest(entityName: "Record")
+//        request.predicate = predicate
+//        request.sortDescriptors = [sort]
+//        request.returnsObjectsAsFaults = false
+//        
+//        // get an instance of NSFetchedResultsController
+//        let aFetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context!, sectionNameKeyPath: "sectionIdentifier", cacheName: nil)
+//        _fetchedResultsController = aFetchedResultsController
+//        
+//        var error: NSError? = nil
+//        if !_fetchedResultsController!.performFetch(&error) {
+//            abort()
+//        }
+//        return _fetchedResultsController!
         
     }
     
@@ -47,10 +72,14 @@ class ListTableViewController: UITableViewController {
             var selectedItem: NSManagedObject = mylist[indexPath.row] as NSManagedObject
             let IVC: DetailViewController = segue.destinationViewController as DetailViewController
             
-            IVC.name = selectedItem.valueForKey("name") as? String
-            IVC.pic = selectedItem.valueForKey("pic") as? UIImage
-            IVC.detail = selectedItem.valueForKey("detail") as? String
+            IVC.name   = selectedItem.valueForKey("name") as String
+            IVC.time   = selectedItem.valueForKey("recordTimeString") as String
+            IVC.pic    = selectedItem.valueForKey("pic") as UIImage
+            IVC.detail = selectedItem.valueForKey("detail") as String
             IVC.existingItem = selectedItem
+            
+            println("テスト。segue:update完了")
+            println("テスト。name -> \(IVC.name), pic -> \(IVC.pic), detail -> \(IVC.detail)")
             
         }
     }
@@ -73,35 +102,32 @@ class ListTableViewController: UITableViewController {
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath?) -> UITableViewCell {
         
-        let CellID : NSString = "Cell"
-        var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier(CellID) as UITableViewCell
+        // tableCell の ID で UITableViewCell のインスタンスを生成 cell deque
+        var cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath!) as UITableViewCell
+        
         if let ip = indexPath {
             var data : NSManagedObject = mylist[ip.row] as NSManagedObject
             
             var nameText = data.valueForKeyPath("name") as String
-            var picView = data.valueForKeyPath("pic") as? UIImage
-            var detailText = data.valueForKeyPath("detail") as String
+            var timeText = data.valueForKeyPath("recordTimeString") as String
+            var picView = data.valueForKeyPath("pic") as UIImage
+            //var detailText = data.valueForKeyPath("detail") as String
             
             var cellNameText = tableView.viewWithTag(1) as UILabel!
             cellNameText?.text = nameText
             
             var cellImg = tableView.viewWithTag(2) as UIImageView!
             cellImg?.image = picView
-//            
-//            cell.textLabel?.text = nameText
-//            cell.detailTextLabel?.text = "\(nameText)さんの\(detailText)"
+            
+            var cellTime = tableView.viewWithTag(3) as UILabel!
+            cellTime?.text = timeText
+            
+            println("テスト。ip.row=\(ip.row)")
+            println("テスト。name-> \(nameText), img-> \(picView), time -> \(timeText)")
+            println("テスト。name-> \(cell.textLabel?.text), img-> \(cellImg?.image), time -> \(cellTime?.text)")
+
         }
         
-//        var img = UIImage(named:"\(imgArray[indexPath.row])")
-//        // Tag番号 1 で UIImageView インスタンスの生成
-//        var imageView = tableView.viewWithTag(1) as UIImageView
-//        imageView.image = img
-//        
-//        // Tag番号 2 で UILabel インスタンスの生成
-//        // let label1 = tableView.viewWithTag(2) as UILabel
-//        // label1.text = "No.\(indexPath.row + 1)"
-//        var label1 = tableView.viewWithTag(2) as UILabel
-//        label1.text = "No.\(label1Array[indexPath.row])"
         
         return cell
     }

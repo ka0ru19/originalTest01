@@ -12,8 +12,10 @@ import CoreData
 class Model: NSManagedObject {
    
     @NSManaged var name: String
+    @NSManaged var recordTimeString: String
     @NSManaged var pic: UIImage
     @NSManaged var detail: String
+    
     
     
 }
