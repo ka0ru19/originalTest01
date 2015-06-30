@@ -9,10 +9,10 @@
 import UIKit
 import CoreData
 
-class DetailViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIToolbarDelegate, UITextFieldDelegate {
+class DetailViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIToolbarDelegate, UITextFieldDelegate, UITextViewDelegate {
     
-    @IBOutlet weak var textFieldTime: UITextField!
     private var textFieldName: UITextField!
+    private var textFieldTime:UITextField!
     private var myImage: UIImageView!
     private var textViewDetail: UITextView!
     
@@ -25,9 +25,10 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
     var detail: String! = ""
     var existingItem: NSManagedObject!
     
-    let interval: CGFloat = 8 //アイテム配置のための間隔の設定
-    
-    
+    let interval: CGFloat = 8 //アイテム配置のための間隔(px)の設定
+    var textFieldIsEditing = false
+    var textViewIsEditing = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -36,10 +37,9 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         
         var y: CGFloat = 64 //画面上端からツールバーの下端までの高さ＝64
         
-        // Labelを作成.
+        // textFieldNameを作成.
         y = y + interval
         textFieldName = UITextField(frame: CGRectMake(interval, y, iphoneWidth*3/5, 30))
-        y = y + 30 //yに下端の値を代入しておく
         
         // 枠を丸くする.
         textFieldName.layer.masksToBounds = true
@@ -62,12 +62,52 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         // Textを中央寄せにする.
         textFieldName.textAlignment = NSTextAlignment.Center
         
-        // ViewにLabelを追加.
-        self.view.addSubview(textFieldName)
+        // タグをつける
+        textFieldName.tag = 1
         
         textFieldName?.delegate = self  //追加
         
-        // UIImageViewを作成する.ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+        // ViewにLabelを追加.
+        self.view.addSubview(textFieldName)
+        
+        // textFieldTimeを作成ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー開始
+        textFieldTime = UITextField(frame: CGRectMake(interval+iphoneWidth*3/5+interval, y, iphoneWidth-iphoneWidth*3/5-interval*3, 30))
+        y = y + 30 //yに下端の値を代入しておく
+        
+        // 枠を丸くする.
+        textFieldTime.layer.masksToBounds = true
+        
+        // コーナーの半径.
+        textFieldTime.layer.cornerRadius = 6.0
+        
+        // Labelに文字を代入.
+        textFieldTime.text = ""
+        
+        // 未入力時の薄い文字を設定
+        textFieldTime.placeholder = "input name here!"
+        
+        // 文字の色を黒にする.
+        textFieldTime.textColor = UIColor.blackColor()
+        
+        // 枠線の太さを設定する.
+        textFieldTime.layer.borderWidth = 0.8
+        
+        // フォントの設定をする.
+        textFieldTime.font = UIFont.systemFontOfSize(CGFloat(10))
+        
+        // Textを中央寄せにする.
+        textFieldTime.textAlignment = NSTextAlignment.Center
+        
+        // タグをつける
+        textFieldTime.tag = 2
+        
+        textFieldTime?.delegate = self  //追加
+        
+        // ViewにLabelを追加.
+        self.view.addSubview(textFieldTime)
+        
+        // UIImageViewを作成する.ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー開始
+        
         // 表示する写真のサイズ：iPhone の横幅の長さの3/5倍を1辺とする正方形
         y = y + interval // 高さの算出, 30はLabelの高さ
         myImage = UIImageView(frame: CGRectMake(interval, y, iphoneWidth*3/5, iphoneWidth*3/5))
@@ -84,12 +124,12 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         
         // UIImageViewをViewに追加する.
         self.view.addSubview(myImage)
-        // UIImageView 完了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+        // UIImageView ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー完了
         
-        // TextView生成する.ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+        // TextView生成する.ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー開始
         y = y + interval
-        textViewDetail = UITextView(frame: CGRectMake(interval, y, iphoneWidth - 2 * interval, 300)) //300は適当
-        y = y + 300
+        textViewDetail = UITextView(frame: CGRectMake(interval, y, iphoneWidth - 2 * interval, 180)) //180は適当
+        y = y + 180
         
         // 表示させるテキストを設定する.
         textViewDetail.text = ""
@@ -98,7 +138,7 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         textViewDetail.layer.masksToBounds = true
         
         // 丸みのサイズを設定する.
-        textViewDetail.layer.cornerRadius = 12.0
+        textViewDetail.layer.cornerRadius = 10.0
         
         // 枠線の太さを設定する.
         textViewDetail.layer.borderWidth = 0.5
@@ -121,11 +161,17 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         // 編集可能か否か
         textViewDetail.editable = true
         
+        // タグをつける
+        textViewDetail.tag = 4
+        
+        textViewDetail?.delegate = self  //追加
+        
         // TextViewをViewに追加する.
         self.view.addSubview(textViewDetail)
-        // TextView 完了ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+        
+        // TextView ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー完了
 
-        // UIDatePickerの設定
+        // UIDatePickerの設定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー開始
         myDatePicker = UIDatePicker()
         myDatePicker.addTarget(self, action: "changedDateEvent:", forControlEvents: UIControlEvents.ValueChanged)
         myDatePicker.datePickerMode = UIDatePickerMode.DateAndTime
@@ -145,8 +191,8 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         toolBar.items = [toolBarBtn, toolBarBtnToday]
         
         textFieldTime.inputAccessoryView = toolBar
+        // UIDatePickerの設定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー完了
 
-        
         println("テスト。DetailViewControllerのsuper.viewDidLoad()開始")
         
         if (existingItem != nil) {
@@ -158,23 +204,21 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
             
         } else { //existingItemが空だったら新規画面、
             println("テスト。else文")
-            // TimeLabel入力欄の設定--------------------------------------------------------------------------------
-            //textFieldTime.placeholder = dateToString(NSDate())
+            // TimeLabel入力欄の設定-------------------------------------------------------------------------
             textFieldTime.text        = dateToString(NSDate()) //初期入力
-            // 枠を表示する.
-            //textField.borderStyle = UITextBorderStyle.RoundedRect
-            //textFieldTime.sizeToFit()
-            //self.view.addSubview(textFieldTime)
-            // TimeLabel入力欄の設定ここまで-----------------------------------------------------------
             
             //写真の取得
             self.selectImageWayBtn()
-            //self.pickImageFromCamera()
-            //self.pickImageFromLibrary()
         }
         //それ以外は既存の項目を表示
         // Do any additional setup after loading the view, typically from a nib.
         println("テスト。DetailViewControllerのsuper.viewDidLoad()完了")
+        
+        //範囲外タップで"onTap"からキーボードを格納
+        let _singleTap = UITapGestureRecognizer(target: self, action: "onTap:")
+        _singleTap.numberOfTapsRequired = 1
+        view.addGestureRecognizer(_singleTap)
+
     }
     
     // textFieldで改行が押されるとキーボードを収納
@@ -184,6 +228,85 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         
         return true
     }
+    
+    // textviewのキーボードの格納
+    func onTap (recognizer:UIPanGestureRecognizer){
+        textFieldName.resignFirstResponder()
+        textFieldTime.resignFirstResponder()
+        textViewDetail.resignFirstResponder()
+    }
+    
+    // textViewの表示位置の追随---------------------------------------------------------------------開始
+    func textFieldShouldBeginEditing(textField: UITextField!) -> Bool {
+        textFieldIsEditing = true
+        return true
+    }
+    
+    func textFieldShouldEndEditing(textField: UITextField!) -> Bool {
+        textFieldIsEditing = false
+        return true
+    }
+    
+    func textViewShouldBeginEditing(textView: UITextView!) -> Bool {
+        textViewIsEditing = true
+        return true
+    }
+
+    func textViewShouldEndEditing(textView: UITextView!) -> Bool {
+        return true
+    }
+
+    override func viewWillAppear(animated: Bool) {
+        // Viewの表示時にキーボード表示・非表示を監視するObserverを登録する
+        super.viewWillAppear(animated)
+        if !textViewIsEditing {
+            let notification = NSNotificationCenter.defaultCenter()
+            notification.addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
+            notification.addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
+            textViewIsEditing = false
+            
+        }
+    }
+    override func viewWillDisappear(animated: Bool) {
+        // Viewの表示時にキーボード表示・非表示時を監視していたObserverを解放する
+        super.viewWillDisappear(animated)
+        if textViewIsEditing {
+            let notification = NSNotificationCenter.defaultCenter()
+            notification.removeObserver(self)
+            notification.removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
+            notification.removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+            textViewIsEditing = false
+        }
+    }
+    
+    func keyboardWillShow(notification: NSNotification?) {
+        // キーボード表示時の動作をここに記述する
+        if textViewIsEditing {
+            let rect = (notification?.userInfo?[UIKeyboardFrameEndUserInfoKey] as NSValue).CGRectValue()
+            let duration:NSTimeInterval = notification?.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as Double
+            UIView.animateWithDuration(duration, animations: {
+                let transform = CGAffineTransformMakeTranslation(0, -rect.size.height)
+                self.view.transform = transform
+                },completion:nil)
+        } else {
+            return
+        }
+    }
+    func keyboardWillHide(notification: NSNotification?) {
+        // キーボード消滅時の動作をここに記述する
+        if textViewIsEditing {
+            textViewIsEditing = false
+            let duration = (notification?.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as Double)
+            UIView.animateWithDuration(duration, animations:{
+                self.view.transform = CGAffineTransformIdentity
+                },completion:nil)
+        } else {
+            return
+        }
+        
+    }
+    // textViewの表示位置の追随ここまで-------------------------------------------------------------------------------------
+
     
     // UIDatePickerここから----------------------------------------------------------------------------------------
     // 「完了」を押すと閉じる
@@ -318,7 +441,6 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         }
     }
     
-    
     // 写真を選択した時に呼ばれる
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
         if info[UIImagePickerControllerOriginalImage] != nil {
@@ -331,7 +453,6 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         picker.dismissViewControllerAnimated(true, completion: nil)
     }
     //写真選択ここまで------------------------------------------------------------------------------------------------
-
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
