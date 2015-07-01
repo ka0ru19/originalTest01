@@ -71,7 +71,7 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         self.view.addSubview(textFieldName)
         
         // textFieldTimeを作成ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー開始
-        textFieldTime = UITextField(frame: CGRectMake(interval+iphoneWidth*3/5+interval, y, iphoneWidth-iphoneWidth*3/5-interval*3, 30))
+        textFieldTime = UITextField(frame: CGRectMake(interval+iphoneWidth*3/5, y+iphoneWidth*3/5+interval*2, iphoneWidth-iphoneWidth*3/5-interval*2, 30))
         y = y + 30 //yに下端の値を代入しておく
         
         // 枠を丸くする.
@@ -90,13 +90,13 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         textFieldTime.textColor = UIColor.blackColor()
         
         // 枠線の太さを設定する.
-        textFieldTime.layer.borderWidth = 0.8
+        textFieldTime.layer.borderWidth = 0.0
         
         // フォントの設定をする.
         textFieldTime.font = UIFont.systemFontOfSize(CGFloat(10))
         
         // Textを中央寄せにする.
-        textFieldTime.textAlignment = NSTextAlignment.Center
+        textFieldTime.textAlignment = NSTextAlignment.Right
         
         // タグをつける
         textFieldTime.tag = 2
@@ -118,6 +118,10 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         
         // 画像をUIImageViewに設定する.
         myImage.image = nil
+        
+        myImage.layer.masksToBounds = true
+        
+        myImage.layer.cornerRadius = iphoneWidth*3/5/2
         
         // 画像の表示する座標を指定する.
         //myImage.layer.position = CGPoint(x: self.view.bounds.width/2, y: 200.0)
@@ -332,7 +336,7 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         var weekdays = ["", "日", "月", "火", "水", "木", "金", "土"]
         
         date_formatter.locale     = NSLocale(localeIdentifier: "ja")
-        date_formatter.dateFormat = "  yyyy/MM/dd (\(weekdays[comps.weekday])) HH:mm "
+        date_formatter.dateFormat = " 登録: yyyy/MM/dd (\(weekdays[comps.weekday])) HH:mm  "
         
         return date_formatter.stringFromDate(date)
     }
@@ -410,6 +414,30 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         self.navigationController?.popToRootViewControllerAnimated(true)
         
     }
+    @IBAction func editTapped(sender: UIBarButtonItem) {
+        let alertController = UIAlertController(title: "何を編集しますか", message: nil /*"どこから追加しますか？",*/ , preferredStyle: .ActionSheet)
+//        let firstAction = UIAlertAction(title: "設定", style: .Default) {
+//            action in self.pickImageFromCamera()
+//        }
+        let secondAction = UIAlertAction(title: "写真を変更", style: .Default) {
+            action in self.selectImageWayBtn()
+        }
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .Cancel) {
+            action in return
+        }
+        
+//        alertController.addAction(firstAction)
+        alertController.addAction(secondAction)
+        alertController.addAction(cancelAction)
+        
+        //For ipad And Univarsal Device
+        alertController.popoverPresentationController?.sourceView = view as UIView
+        alertController.popoverPresentationController?.sourceRect = CGRect(x: (self.view.frame.size.width/2), y: self.view.frame.size.height, width: 0, height: 0)
+        alertController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.Up
+        
+        presentViewController(alertController, animated: true, completion: nil)
+
+    }
     
     //写真選択-------------------------------------------------------------------------------------------------------
     // 写真を撮ってそれを選択
@@ -417,6 +445,7 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera) {
             let controller = UIImagePickerController()
             controller.delegate = self
+            controller.allowsEditing = true
             controller.sourceType = UIImagePickerControllerSourceType.Camera
             self.presentViewController(controller, animated: true, completion: nil)
         }
@@ -428,7 +457,6 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
             let controller = UIImagePickerController()
             controller.delegate = self
             controller.allowsEditing = true
-            //controller.cameraOverlayView = overlay
             controller.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
             self.presentViewController(controller, animated: true, completion: nil)
         }
