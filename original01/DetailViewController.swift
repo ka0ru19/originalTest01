@@ -192,18 +192,14 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         
         textFieldTime.inputAccessoryView = toolBar
         // UIDatePickerの設定ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー完了
-
-        println("テスト。DetailViewControllerのsuper.viewDidLoad()開始")
         
         if (existingItem != nil) {
-            println("テスト。if文：existingItem != nil")
             textFieldName.text = name
             textFieldTime.text = time
             myImage?.image = pic
             textViewDetail.text = detail
             
         } else { //existingItemが空だったら新規画面、
-            println("テスト。else文")
             // TimeLabel入力欄の設定-------------------------------------------------------------------------
             textFieldTime.text        = dateToString(NSDate()) //初期入力
             
@@ -212,7 +208,6 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         }
         //それ以外は既存の項目を表示
         // Do any additional setup after loading the view, typically from a nib.
-        println("テスト。DetailViewControllerのsuper.viewDidLoad()完了")
         
         //範囲外タップで"onTap"からキーボードを格納
         let _singleTap = UITapGestureRecognizer(target: self, action: "onTap:")
@@ -370,20 +365,17 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
 
     
     @IBAction func saveTapped(sender: AnyObject) {
-        println("テスト。DetailViewControllerのsaveTapped()開始")
         let appDel: AppDelegate = UIApplication.sharedApplication().delegate as AppDelegate
         let contxt: NSManagedObjectContext = appDel.managedObjectContext!
         let en = NSEntityDescription.entityForName("List", inManagedObjectContext: contxt)
         
         if (existingItem != nil) { //もしexistingItemがあったら
-            println("テスト。if文：existingItem != nil")
             existingItem.setValue(textFieldName.text as String, forKey: "name")
             existingItem.setValue(textFieldTime.text as String, forKey: "recordTimeString")
             existingItem.setValue(myImage.image , forKey: "pic")
             existingItem.setValue(textViewDetail.text as String, forKey: "detail")
             
         } else {   // なかったら
-            println("テスト。else文")
             if (myImage.image == nil) {
                 let alertController = UIAlertController(title: "写真がありません", message: "「編集」から写真を選択してください", preferredStyle: .Alert)
                 
@@ -403,7 +395,7 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
             var newItem = Model(entity: en!, insertIntoManagedObjectContext: contxt)
             newItem.name = textFieldName.text
             newItem.recordTimeString = textFieldTime.text
-            //新規画面から写真選択をキャンセルしてSaveしようとするとしたの行でエラー
+            //新規画面から写真選択をキャンセルしてSaveしようとするとしたの行でエラー:解決済み
             newItem.pic = myImage.image!
             newItem.detail = textViewDetail.text
             
@@ -412,7 +404,6 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         contxt.save(nil)
         
         self.navigationController?.popToRootViewControllerAnimated(true)
-        println("テスト。DetailViewControllerのsaveTapped()完了")
     }
     @IBAction func cancelTapped(sender: AnyObject) {
         
@@ -436,6 +427,8 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.PhotoLibrary) {
             let controller = UIImagePickerController()
             controller.delegate = self
+            controller.allowsEditing = true
+            //controller.cameraOverlayView = overlay
             controller.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
             self.presentViewController(controller, animated: true, completion: nil)
         }

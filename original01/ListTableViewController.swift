@@ -12,16 +12,10 @@ import CoreData
 class ListTableViewController: UITableViewController {
     
     var mylist:Array<AnyObject> = []
-//    
-//    @IBOutlet weak var nameLabel: UILabel!        //tag 1
-//    @IBOutlet weak var imageLabel: UIImageView!   //tag 2
-//    @IBOutlet weak var dateLabel: UILabel!        //tag 3
     
     override func viewDidLoad() {
         // Do any additional setup after loading the view, typically from a nib.
         super.viewDidLoad()
-        
-        println("テスト。ListTableViewControllerのsuper.viewDidLoad()完了")
     }
     
     override func viewDidAppear(animated: Bool) {        
@@ -39,31 +33,6 @@ class ListTableViewController: UITableViewController {
         mylist = context.executeFetchRequest(freq, error: nil)!
         tableView.reloadData()
         
-        println("テスト。viewDidAppear完了")
-        
-        
-        // get coredata instances
-        
-//        let appDel:AppDelegate = UIApplication.sharedApplication().delegate as AppDelegate
-//        let context: NSManagedObjectContext? = appDel.managedObjectContext
-//        let sort:NSSortDescriptor = NSSortDescriptor(key: "recordTime", ascending: false)
-//        let predicate:NSPredicate? = NSPredicate(format: "%@ <= recordTime && recordTime <= %@", startDate!, lastDate!)
-//        
-//        let request = NSFetchRequest(entityName: "Record")
-//        request.predicate = predicate
-//        request.sortDescriptors = [sort]
-//        request.returnsObjectsAsFaults = false
-//        
-//        // get an instance of NSFetchedResultsController
-//        let aFetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context!, sectionNameKeyPath: "sectionIdentifier", cacheName: nil)
-//        _fetchedResultsController = aFetchedResultsController
-//        
-//        var error: NSError? = nil
-//        if !_fetchedResultsController!.performFetch(&error) {
-//            abort()
-//        }
-//        return _fetchedResultsController!
-        
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -77,9 +46,6 @@ class ListTableViewController: UITableViewController {
             IVC.pic    = selectedItem.valueForKey("pic") as UIImage
             IVC.detail = selectedItem.valueForKey("detail") as String
             IVC.existingItem = selectedItem
-            
-            println("テスト。segue:update完了")
-            println("テスト。name -> \(IVC.name), pic -> \(IVC.pic), detail -> \(IVC.detail)")
             
         }
     }
@@ -122,12 +88,7 @@ class ListTableViewController: UITableViewController {
             var cellTime = tableView.viewWithTag(3) as UILabel!
             cellTime?.text = timeText
             
-            println("テスト。ip.row=\(ip.row)")
-            println("テスト。name-> \(nameText), img-> \(picView), time -> \(timeText)")
-            println("テスト。name-> \(cell.textLabel?.text), img-> \(cellImg?.image), time -> \(cellTime?.text)")
-
         }
-        
         
         return cell
     }
