@@ -45,6 +45,8 @@ class ListTableViewController: UITableViewController {
             IVC.time   = selectedItem.valueForKey("recordTimeString") as String
             IVC.pic    = selectedItem.valueForKey("pic") as UIImage
             IVC.detail = selectedItem.valueForKey("detail") as String
+            IVC.birth  = selectedItem.valueForKey("birthday") as String
+
             IVC.existingItem = selectedItem
             
         }

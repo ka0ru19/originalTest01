@@ -15,7 +15,6 @@ class Model: NSManagedObject {
     @NSManaged var recordTimeString: String
     @NSManaged var pic: UIImage
     @NSManaged var detail: String
-    
-    
+    @NSManaged var birthday: String
     
 }
