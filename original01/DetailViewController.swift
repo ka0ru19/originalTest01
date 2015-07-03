@@ -163,6 +163,8 @@ class DetailViewController: UIViewController, UIImagePickerControllerDelegate, U
         // 画像をUIImageViewに設定する.
         myImage.image = nil
         
+        myImage.contentMode = UIViewContentMode.ScaleAspectFit
+        
         myImage.layer.masksToBounds = true
         
         myImage.layer.cornerRadius = iphoneWidth*3/5/2
